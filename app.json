@@ -1,0 +1,11 @@
+{
+  "expo": {
+    "name": "Practical Hypnosis",
+    "slug": "practical-hypnosis",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "dark",
+    "android": {"package": "com.mastermystery.practicalhypnosis"},
+    "ios": {"bundleIdentifier": "com.mastermystery.practicalhypnosis"}
+  }
+}
