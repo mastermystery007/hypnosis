@@ -1,26 +1,252 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { StatusBar } from 'expo-status-bar';
-import React,{useEffect,useMemo,useState} from 'react';
-import {SafeAreaView,ScrollView,StyleSheet,Text,TextInput,TouchableOpacity,View} from 'react-native';
+import React, { useEffect, useMemo, useState } from 'react';
+import { SafeAreaView, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { Lesson, lessons } from './src/course';
 
-type Lesson={id:number;title:string;summary:string;points:string[];assignment:string;media:string};
-const lessons:Lesson[]=[
-{id:1,title:'What Hypnosis Is—and Is Not',summary:'Build an evidence-aware model based on focused attention, absorption, expectation, imagination and responsiveness.',points:['Hypnosis is not sleep, unconsciousness or guaranteed obedience.','Responsiveness varies; a missed suggestion is useful feedback, not failure.','Use accurate language that inspires curiosity without promising mind control.'],assignment:'Record a clear 60-second explanation of hypnosis that removes fear without exaggeration.',media:'Add: introductory explainer video and absorption demonstration.'},
-{id:2,title:'Consent, Screening & Safety',summary:'Create a professional safety process before attempting any exercise.',points:['Obtain informed, specific and reversible consent.','Do not work with intoxicated, acutely distressed or non-consenting people.','Use safe posture, a stop signal, complete suggestion removal and a debrief.'],assignment:'Write and rehearse a participant safety checklist.',media:'Add: consent walkthrough, printable screening checklist.'},
-{id:3,title:'The Pre-Talk',summary:'Create expectation, cooperation and psychological safety before induction.',points:['Explain participation as imagination and focused involvement.','Frame responses as natural rather than tests of willpower.','Use permissive language and answer common fears.'],assignment:'Deliver a 60–90 second pre-talk naturally without reading.',media:'Add: model pre-talk audio in calm and performance styles.'},
-{id:4,title:'Suggestibility & Ideomotor Exercises',summary:'Learn magnetic fingers, magnetic hands, light/heavy hands, pendulum movement and hand levitation.',points:['Use sensory imagery, timing and repetition.','Notice and reinforce small automatic movements.','Transition from a successful exercise into an induction.'],assignment:'Run magnetic fingers and light/heavy hands with a consenting partner.',media:'Add: five short demonstration videos and scripts.'},
-{id:5,title:'Anatomy of an Induction',summary:'Understand the reusable structure behind fixation, breathing, imagery and hand-focus inductions.',points:['Gain attention, narrow focus, establish response, label the experience and deepen engagement.','Adapt wording for analytical and imaginative participants.','Long scripts are not automatically more effective.'],assignment:'Write one five-minute induction using the six-part framework.',media:'Add: eye-fixation, breathing and hand-focus demonstrations.'},
-{id:6,title:'Rapid & Pattern-Interrupt Inductions',summary:'Use surprise safely only after explicit pre-consent.',points:['Interruption creates a brief opportunity for immediate redirection.','Support posture; never pull aggressively, twist the neck or create fall risk.','If the participant laughs or stays alert, continue conversationally without embarrassment.'],assignment:'Role-play the sequence and three recovery paths before physical practice.',media:'Add: slow-motion breakdown with safety callouts.'},
-{id:7,title:'Deepeners & Fractionation',summary:'Increase absorption using counting, stairs, hand lowering and repeated eye opening.',points:['Treat depth as engagement, not a literal level.','Use fractionation briefly and purposefully.','Match visual, auditory or body-based language to the participant.'],assignment:'Create one visual and one body-based deepener.',media:'Add: guided deepener audios at 3 and 7 minutes.'},
-{id:8,title:'The Phenomena Ladder',summary:'Progress from easy ideomotor responses toward catalepsy, inhibition, sensation and amnesia.',points:['Build on successful responses instead of jumping to the hardest effect.','Use small tests as information, not challenges.','Simplify or stop while preserving participant dignity.'],assignment:'Design a five-step ladder for a ten-minute demonstration.',media:'Add: printable ladder planner and troubleshooting flowchart.'},
-{id:9,title:'Catalepsy, Sticking & Motor Suggestions',summary:'Create safe temporary rigidity, heaviness and harmless inability effects.',points:['Install, test and remove every suggestion clearly.','Use stable positions and gentle tests.','Never use painful bridges, weight-bearing stunts or dangerous falls.'],assignment:'Practise hand-stick and arm-catalepsy scripts including full cancellation.',media:'Add: hand stick, finger lock and arm catalepsy demonstrations.'},
-{id:10,title:'Amnesia & Name Forgetting',summary:'Structure reversible forgetting demonstrations responsibly.',points:['Begin with neutral information such as a number or simple word.','Use metaphors such as a blank page or temporarily closed drawer.','Restore recall explicitly and verify normal orientation.'],assignment:'Write a number-forgetting routine with two outs and full restoration.',media:'Add: number amnesia and safe name-forgetting examples.'},
-{id:11,title:'Sensory Change & Imaginative Hallucination',summary:'Guide harmless changes in taste, temperature, weight, sound and imagery.',points:['Start with believable contrasts and participant-generated imagery.','Avoid frightening, humiliating or distressing content.','Cancel suggestions and reorient immediately.'],assignment:'Create one warmth/coolness and one object-weight routine.',media:'Add: sensory-change demonstration and consent script.'},
-{id:12,title:'Post-Hypnotic Suggestions',summary:'Install benign, time-limited cues with explicit consent and removal.',points:['Define cue, response, duration and cancellation precisely.','Use only harmless agreed effects or participant-selected reminders.','Never use covert sexual, financial or coercive suggestions.'],assignment:'Draft a confidence-breath cue and a playful cue with removal wording.',media:'Add: installation/removal comparison video.'},
-{id:13,title:'Conversational Hypnosis & Metaphor',summary:'Use pacing, leading, metaphor and naturalistic attention direction without pseudoscientific claims.',points:['Pace observable experience before leading toward a requested state.','Use the participant’s own sensory vocabulary.','Respectful suggestion is not covert control.'],assignment:'Guide a two-minute absorption exercise without saying “sleep” or “trance.”',media:'Add: conversational demonstration and annotated transcript.'},
-{id:14,title:'Self-Hypnosis',summary:'Build a repeatable practice for relaxation, rehearsal and focused preparation.',points:['Choose one realistic objective and measurable behaviour.','Combine a brief induction, imagery, suggestion and reorientation.','Track outcomes without claiming treatment of disorders.'],assignment:'Record a seven-minute self-hypnosis audio for study or performance rehearsal.',media:'Add: editable scripts and three guided audio tracks.'},
-{id:15,title:'Complete Safe Demonstration',summary:'Combine consent, pre-talk, exercise, induction, phenomena, cancellation and debriefing.',points:['Run a coherent 10–15 minute session with no unsafe stunts.','Handle laughter, partial response, discomfort and early termination.','Debrief, verify removal and request feedback.'],assignment:'Record the full demonstration and score clarity, safety, pacing and comfort.',media:'Add: complete model performance and assessment rubric.'}
-];
-const KEY='hypnosis-progress-v1';
-export default function App(){const[selected,setSelected]=useState<Lesson|null>(null);const[done,setDone]=useState<number[]>([]);const[q,setQ]=useState('');useEffect(()=>{AsyncStorage.getItem(KEY).then(v=>v&&setDone(JSON.parse(v))).catch(()=>{})},[]);const toggle=async(id:number)=>{const n=done.includes(id)?done.filter(x=>x!==id):[...done,id];setDone(n);await AsyncStorage.setItem(KEY,JSON.stringify(n))};const filtered=useMemo(()=>lessons.filter(l=>(l.title+' '+l.summary).toLowerCase().includes(q.toLowerCase())),[q]);if(selected)return <SafeAreaView style={s.safe}><StatusBar style="light"/><ScrollView contentContainerStyle={s.page}><TouchableOpacity onPress={()=>setSelected(null)}><Text style={s.back}>‹ Course</Text></TouchableOpacity><Text style={s.kicker}>LESSON {selected.id} · 25–40 MIN</Text><Text style={s.title}>{selected.title}</Text><Text style={s.lead}>{selected.summary}</Text><View style={s.card}><Text style={s.cardTitle}>Core training</Text>{selected.points.map((p,i)=><Text key={i} style={s.body}>• {p}</Text>)}</View><View style={s.card}><Text style={s.cardTitle}>Practice assignment</Text><Text style={s.body}>{selected.assignment}</Text></View><View style={s.card}><Text style={s.cardTitle}>Media to add</Text><Text style={s.muted}>{selected.media}</Text></View><View style={s.card}><Text style={s.cardTitle}>Professional rule</Text><Text style={s.body}>Rehearse the visible handling, wording, cancellation and recovery as seriously as the induction itself. Participant welfare is always more important than producing a dramatic response.</Text></View><TouchableOpacity style={[s.button,done.includes(selected.id)&&s.done]} onPress={()=>toggle(selected.id)}><Text style={s.buttonText}>{done.includes(selected.id)?'Completed ✓':'Mark lesson complete'}</Text></TouchableOpacity></ScrollView></SafeAreaView>;return <SafeAreaView style={s.safe}><StatusBar style="light"/><ScrollView contentContainerStyle={s.page}><Text style={s.brand}>PRACTICAL HYPNOSIS</Text><Text style={s.hero}>Suggestion, Trance & Safe Performance</Text><Text style={s.lead}>A complete 15-lesson course in consensual hypnosis, ideomotor response, inductions, phenomena, self-hypnosis and participant care.</Text><View style={s.progress}><Text style={s.progressText}>{done.length}/15 lessons complete</Text><View style={s.track}><View style={[s.fill,{width:`${done.length/15*100}%`}]} /></View></View><TextInput value={q} onChangeText={setQ} placeholder="Search lessons…" placeholderTextColor="#888" style={s.search}/>{filtered.map(l=><TouchableOpacity key={l.id} style={s.lesson} onPress={()=>setSelected(l)}><View style={s.num}><Text style={s.numText}>{l.id}</Text></View><View style={{flex:1}}><Text style={s.lessonTitle}>{l.title}</Text><Text style={s.lessonSummary} numberOfLines={2}>{l.summary}</Text><Text style={s.meta}>25–40 min · lesson + drill + assessment</Text></View><Text style={s.chev}>{done.includes(l.id)?'✓':'›'}</Text></TouchableOpacity>)}<Text style={s.disclaimer}>Education and entertainment only. This app does not provide medical or psychological treatment. Never hypnotise anyone without informed consent or in an unsafe setting.</Text></ScrollView></SafeAreaView>}
-const s=StyleSheet.create({safe:{flex:1,backgroundColor:'#0d0b12'},page:{padding:20,paddingBottom:60},brand:{color:'#bca7ff',fontSize:13,fontWeight:'800',letterSpacing:2,marginTop:8},hero:{color:'#fff',fontSize:35,fontWeight:'900',lineHeight:40,marginTop:10},lead:{color:'#c8c4cf',fontSize:16,lineHeight:24,marginTop:10},progress:{backgroundColor:'#191620',padding:16,borderRadius:16,marginTop:22},progressText:{color:'#fff',fontWeight:'700'},track:{height:7,backgroundColor:'#302b3b',borderRadius:9,marginTop:10,overflow:'hidden'},fill:{height:7,backgroundColor:'#bca7ff'},search:{backgroundColor:'#191620',color:'#fff',borderRadius:14,padding:15,marginVertical:16},lesson:{flexDirection:'row',gap:13,alignItems:'center',backgroundColor:'#17141d',padding:15,borderRadius:16,marginBottom:10,borderWidth:1,borderColor:'#282332'},num:{width:38,height:38,borderRadius:19,backgroundColor:'#28223a',alignItems:'center',justifyContent:'center'},numText:{color:'#d8ccff',fontWeight:'900'},lessonTitle:{color:'#fff',fontWeight:'800',fontSize:16},lessonSummary:{color:'#aaa5b1',fontSize:13,lineHeight:18,marginTop:4},meta:{color:'#7f778b',fontSize:11,marginTop:7},chev:{color:'#bca7ff',fontSize:24},back:{color:'#bca7ff',fontSize:17,fontWeight:'700',marginBottom:20},kicker:{color:'#9c8acc',fontSize:12,fontWeight:'800',letterSpacing:1.4},title:{color:'#fff',fontSize:31,fontWeight:'900',lineHeight:36,marginTop:8},card:{backgroundColor:'#17141d',padding:17,borderRadius:16,marginTop:14,borderWidth:1,borderColor:'#282332'},cardTitle:{color:'#fff',fontSize:17,fontWeight:'800',marginBottom:8},body:{color:'#c8c4cf',fontSize:15,lineHeight:23,marginBottom:7},muted:{color:'#8d8a96',lineHeight:21},button:{backgroundColor:'#7e61d9',padding:17,borderRadius:15,alignItems:'center',marginTop:18},done:{backgroundColor:'#345a46'},buttonText:{color:'#fff',fontWeight:'900',fontSize:16},disclaimer:{color:'#77717f',fontSize:12,lineHeight:18,marginTop:24}});
+const PROGRESS_KEY = 'hypnosis-progress-v2';
+const BOOKMARK_KEY = 'hypnosis-bookmarks-v1';
+
+type Answers = Record<number, number>;
+
+export default function App() {
+  const [selected, setSelected] = useState<Lesson | null>(null);
+  const [done, setDone] = useState<number[]>([]);
+  const [bookmarks, setBookmarks] = useState<number[]>([]);
+  const [query, setQuery] = useState('');
+  const [answers, setAnswers] = useState<Answers>({});
+
+  useEffect(() => {
+    Promise.all([AsyncStorage.getItem(PROGRESS_KEY), AsyncStorage.getItem(BOOKMARK_KEY)])
+      .then(([savedDone, savedBookmarks]) => {
+        if (savedDone) setDone(JSON.parse(savedDone));
+        if (savedBookmarks) setBookmarks(JSON.parse(savedBookmarks));
+      })
+      .catch(() => undefined);
+  }, []);
+
+  const filtered = useMemo(() => {
+    const needle = query.trim().toLowerCase();
+    if (!needle) return lessons;
+    return lessons.filter((lesson) => {
+      const text = [lesson.title, lesson.summary, lesson.level, ...lesson.objectives].join(' ').toLowerCase();
+      return text.includes(needle);
+    });
+  }, [query]);
+
+  const toggleComplete = async (id: number) => {
+    const next = done.includes(id) ? done.filter((value) => value !== id) : [...done, id];
+    setDone(next);
+    await AsyncStorage.setItem(PROGRESS_KEY, JSON.stringify(next));
+  };
+
+  const toggleBookmark = async (id: number) => {
+    const next = bookmarks.includes(id) ? bookmarks.filter((value) => value !== id) : [...bookmarks, id];
+    setBookmarks(next);
+    await AsyncStorage.setItem(BOOKMARK_KEY, JSON.stringify(next));
+  };
+
+  const openLesson = (lesson: Lesson) => {
+    setSelected(lesson);
+    setAnswers({});
+  };
+
+  if (selected) {
+    const score = selected.quiz.reduce((total, item, index) => total + (answers[index] === item.answer ? 1 : 0), 0);
+    const answered = Object.keys(answers).length;
+
+    return (
+      <SafeAreaView style={styles.safe}>
+        <StatusBar style="light" />
+        <ScrollView contentContainerStyle={styles.page}>
+          <View style={styles.topRow}>
+            <TouchableOpacity onPress={() => setSelected(null)}><Text style={styles.back}>‹ Course</Text></TouchableOpacity>
+            <TouchableOpacity onPress={() => toggleBookmark(selected.id)}>
+              <Text style={styles.bookmark}>{bookmarks.includes(selected.id) ? '★ Saved' : '☆ Save'}</Text>
+            </TouchableOpacity>
+          </View>
+
+          <Text style={styles.kicker}>LESSON {selected.id} · {selected.level.toUpperCase()} · {selected.duration}</Text>
+          <Text style={styles.title}>{selected.title}</Text>
+          <Text style={styles.lead}>{selected.summary}</Text>
+
+          <Card title="Learning objectives">
+            {selected.objectives.map((item) => <Bullet key={item} text={item} />)}
+          </Card>
+
+          {selected.sections.map((section) => (
+            <Card key={section.heading} title={section.heading}>
+              {section.body.map((paragraph) => <Text key={paragraph} style={styles.body}>{paragraph}</Text>)}
+            </Card>
+          ))}
+
+          <Card title="Step-by-step practice">
+            {selected.procedure.map((item, index) => <Numbered key={item} number={index + 1} text={item} />)}
+          </Card>
+
+          <Card title="Model wording">
+            {selected.script.map((item) => <Text key={item} style={styles.quote}>“{item}”</Text>)}
+          </Card>
+
+          <Card title="Skill drills">
+            {selected.drills.map((item) => <Bullet key={item} text={item} />)}
+          </Card>
+
+          <Card title="Troubleshooting">
+            {selected.troubleshooting.map((item) => (
+              <View key={item.problem} style={styles.problemBlock}>
+                <Text style={styles.problem}>{item.problem}</Text>
+                <Text style={styles.body}>{item.response}</Text>
+              </View>
+            ))}
+          </Card>
+
+          <Card title="Safety boundary">
+            {selected.safety.map((item) => <Bullet key={item} text={item} />)}
+          </Card>
+
+          <Card title="Performance assignment">
+            <Text style={styles.body}>{selected.assignment}</Text>
+          </Card>
+
+          <Card title="Knowledge check">
+            {selected.quiz.map((item, questionIndex) => {
+              const chosen = answers[questionIndex];
+              return (
+                <View key={item.question} style={styles.quizBlock}>
+                  <Text style={styles.question}>{questionIndex + 1}. {item.question}</Text>
+                  {item.options.map((option, optionIndex) => {
+                    const wasChosen = chosen === optionIndex;
+                    const reveal = chosen !== undefined;
+                    const correct = optionIndex === item.answer;
+                    return (
+                      <TouchableOpacity
+                        key={option}
+                        style={[styles.option, wasChosen && styles.optionChosen, reveal && correct && styles.optionCorrect]}
+                        onPress={() => setAnswers((current) => ({ ...current, [questionIndex]: optionIndex }))}
+                      >
+                        <Text style={styles.optionText}>{option}</Text>
+                      </TouchableOpacity>
+                    );
+                  })}
+                  {chosen !== undefined && (
+                    <Text style={chosen === item.answer ? styles.feedbackCorrect : styles.feedbackWrong}>
+                      {chosen === item.answer ? 'Correct. ' : 'Review: '}{item.explanation}
+                    </Text>
+                  )}
+                </View>
+              );
+            })}
+            <Text style={styles.score}>Score: {score}/{selected.quiz.length} · Answered {answered}/{selected.quiz.length}</Text>
+          </Card>
+
+          <Card title="Media production list">
+            {selected.media.map((item) => <Bullet key={item} text={item} muted />)}
+          </Card>
+
+          <TouchableOpacity style={[styles.button, done.includes(selected.id) && styles.done]} onPress={() => toggleComplete(selected.id)}>
+            <Text style={styles.buttonText}>{done.includes(selected.id) ? 'Completed ✓' : 'Mark lesson complete'}</Text>
+          </TouchableOpacity>
+        </ScrollView>
+      </SafeAreaView>
+    );
+  }
+
+  return (
+    <SafeAreaView style={styles.safe}>
+      <StatusBar style="light" />
+      <ScrollView contentContainerStyle={styles.page}>
+        <Text style={styles.brand}>PRACTICAL HYPNOSIS</Text>
+        <Text style={styles.hero}>Suggestion, Trance and Safe Performance</Text>
+        <Text style={styles.lead}>A consent-first course with detailed theory, model scripts, practical procedures, troubleshooting, assignments and graded knowledge checks.</Text>
+
+        <View style={styles.progress}>
+          <Text style={styles.progressText}>{done.length}/{lessons.length} lessons complete · {bookmarks.length} saved</Text>
+          <View style={styles.track}><View style={[styles.fill, { width: `${(done.length / lessons.length) * 100}%` }]} /></View>
+        </View>
+
+        <TextInput value={query} onChangeText={setQuery} placeholder="Search titles, skills or objectives…" placeholderTextColor="#888" style={styles.search} />
+
+        {filtered.map((lesson) => (
+          <TouchableOpacity key={lesson.id} style={styles.lesson} onPress={() => openLesson(lesson)}>
+            <View style={styles.num}><Text style={styles.numText}>{lesson.id}</Text></View>
+            <View style={styles.lessonText}>
+              <View style={styles.lessonTitleRow}>
+                <Text style={styles.lessonTitle}>{lesson.title}</Text>
+                {bookmarks.includes(lesson.id) && <Text style={styles.star}>★</Text>}
+              </View>
+              <Text style={styles.lessonSummary} numberOfLines={2}>{lesson.summary}</Text>
+              <Text style={styles.meta}>{lesson.duration} · {lesson.level} · {lesson.quiz.length} question quiz</Text>
+            </View>
+            <Text style={styles.chev}>{done.includes(lesson.id) ? '✓' : '›'}</Text>
+          </TouchableOpacity>
+        ))}
+
+        <Text style={styles.disclaimer}>Education and entertainment only. This app does not provide medical or psychological treatment. Never hypnotise anyone without informed consent or in an unsafe setting.</Text>
+      </ScrollView>
+    </SafeAreaView>
+  );
+}
+
+function Card({ title, children }: { title: string; children: React.ReactNode }) {
+  return <View style={styles.card}><Text style={styles.cardTitle}>{title}</Text>{children}</View>;
+}
+
+function Bullet({ text, muted = false }: { text: string; muted?: boolean }) {
+  return <Text style={muted ? styles.muted : styles.body}>• {text}</Text>;
+}
+
+function Numbered({ number, text }: { number: number; text: string }) {
+  return <View style={styles.numbered}><Text style={styles.stepNumber}>{number}</Text><Text style={styles.stepText}>{text}</Text></View>;
+}
+
+const styles = StyleSheet.create({
+  safe: { flex: 1, backgroundColor: '#0d0b12' },
+  page: { padding: 20, paddingBottom: 60 },
+  topRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
+  brand: { color: '#bca7ff', fontSize: 13, fontWeight: '800', letterSpacing: 2, marginTop: 8 },
+  hero: { color: '#fff', fontSize: 35, fontWeight: '900', lineHeight: 40, marginTop: 10 },
+  lead: { color: '#c8c4cf', fontSize: 16, lineHeight: 24, marginTop: 10 },
+  progress: { backgroundColor: '#191620', padding: 16, borderRadius: 16, marginTop: 22 },
+  progressText: { color: '#fff', fontWeight: '700' },
+  track: { height: 7, backgroundColor: '#302b3b', borderRadius: 9, marginTop: 10, overflow: 'hidden' },
+  fill: { height: 7, backgroundColor: '#bca7ff' },
+  search: { backgroundColor: '#191620', color: '#fff', borderRadius: 14, padding: 15, marginVertical: 16 },
+  lesson: { flexDirection: 'row', gap: 13, alignItems: 'center', backgroundColor: '#17141d', padding: 15, borderRadius: 16, marginBottom: 10, borderWidth: 1, borderColor: '#282332' },
+  lessonText: { flex: 1 },
+  lessonTitleRow: { flexDirection: 'row', alignItems: 'center', gap: 8 },
+  num: { width: 38, height: 38, borderRadius: 19, backgroundColor: '#28223a', alignItems: 'center', justifyContent: 'center' },
+  numText: { color: '#d8ccff', fontWeight: '900' },
+  lessonTitle: { color: '#fff', fontWeight: '800', fontSize: 16, flexShrink: 1 },
+  lessonSummary: { color: '#aaa5b1', fontSize: 13, lineHeight: 18, marginTop: 4 },
+  meta: { color: '#7f778b', fontSize: 11, marginTop: 7 },
+  star: { color: '#d8ccff' },
+  chev: { color: '#bca7ff', fontSize: 24 },
+  back: { color: '#bca7ff', fontSize: 17, fontWeight: '700', marginBottom: 20 },
+  bookmark: { color: '#d8ccff', fontWeight: '800', marginBottom: 20 },
+  kicker: { color: '#9c8acc', fontSize: 12, fontWeight: '800', letterSpacing: 1.2 },
+  title: { color: '#fff', fontSize: 31, fontWeight: '900', lineHeight: 36, marginTop: 8 },
+  card: { backgroundColor: '#17141d', padding: 17, borderRadius: 16, marginTop: 14, borderWidth: 1, borderColor: '#282332' },
+  cardTitle: { color: '#fff', fontSize: 17, fontWeight: '800', marginBottom: 10 },
+  body: { color: '#c8c4cf', fontSize: 15, lineHeight: 23, marginBottom: 9 },
+  muted: { color: '#8d8a96', fontSize: 15, lineHeight: 22, marginBottom: 7 },
+  quote: { color: '#ded4ff', fontSize: 15, fontStyle: 'italic', lineHeight: 23, marginBottom: 12, paddingLeft: 12, borderLeftWidth: 3, borderLeftColor: '#7e61d9' },
+  numbered: { flexDirection: 'row', gap: 12, marginBottom: 10 },
+  stepNumber: { color: '#0d0b12', backgroundColor: '#bca7ff', width: 24, height: 24, borderRadius: 12, textAlign: 'center', lineHeight: 24, fontWeight: '900' },
+  stepText: { color: '#c8c4cf', fontSize: 15, lineHeight: 22, flex: 1 },
+  problemBlock: { marginBottom: 10 },
+  problem: { color: '#fff', fontSize: 15, fontWeight: '800', marginBottom: 3 },
+  quizBlock: { marginBottom: 18 },
+  question: { color: '#fff', fontWeight: '800', fontSize: 15, lineHeight: 21, marginBottom: 8 },
+  option: { borderWidth: 1, borderColor: '#393244', borderRadius: 12, padding: 12, marginBottom: 7 },
+  optionChosen: { borderColor: '#bca7ff', backgroundColor: '#292238' },
+  optionCorrect: { borderColor: '#69b889' },
+  optionText: { color: '#d2cdd8', lineHeight: 20 },
+  feedbackCorrect: { color: '#8cddb0', lineHeight: 20, marginTop: 5 },
+  feedbackWrong: { color: '#e0a5a5', lineHeight: 20, marginTop: 5 },
+  score: { color: '#fff', fontWeight: '800', marginTop: 3 },
+  button: { backgroundColor: '#7e61d9', padding: 17, borderRadius: 15, alignItems: 'center', marginTop: 18 },
+  done: { backgroundColor: '#345a46' },
+  buttonText: { color: '#fff', fontWeight: '900', fontSize: 16 },
+  disclaimer: { color: '#77717f', fontSize: 12, lineHeight: 18, marginTop: 24 }
+});
