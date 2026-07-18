@@ -1,16 +1,28 @@
-# Trancecraft: Practical Hypnosis
+# Practical Hypnosis
 
-A premium, offline-first Expo / React Native course application with 15 complete lessons on consent-first hypnosis, ideomotor response, induction, safe performance phenomena, self-hypnosis, and full reorientation.
+A premium Expo / React Native course application with 15 lessons on consent-first hypnosis, ideomotor response, inductions, safe performance phenomena, self-hypnosis and participant care.
 
-## Included
+## Included now
 
-- 15 structured lessons
-- Scripts, drills, failure points, and quizzes
-- Safety onboarding, search, bookmarks, completion tracking, and daily practice
-- On-device text-to-speech narration
-- Privacy policy, paid-store listing draft, EAS build configuration, and CI validation
-- No ads, subscriptions, or locked lesson packs
+- Complete 15-lesson curriculum and lesson-detail screens
+- Search and persistent completion tracking
+- Practice assignments and media requirements per lesson
+- Consent, safety and ethical guidance
+- Paid-download design with no ads or locked lessons
 
-The complete validated source bundle is published in this repository as `trancecraft-hypnosis-source.zip`. Extract it, run `npm install`, then `npm start`.
+## Run
 
-The first store release still needs original app artwork, screenshots, safe demonstration videos, and optional professionally recorded narration. See `MEDIA_ASSET_MANIFEST.md` inside the source bundle.
+```bash
+npm install
+npx expo start
+```
+
+## Still required before store release
+
+- Original icon, splash screen, screenshots and promotional graphics
+- Demonstration and explanation videos
+- Guided pre-talk, deepener and self-hypnosis audio
+- Printable consent, screening and assessment resources
+- Privacy policy, store listing and signed production build
+
+The app deliberately avoids medical-treatment claims. All partner exercises require informed consent and safe conditions.
